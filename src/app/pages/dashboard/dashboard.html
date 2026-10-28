@@ -1,0 +1,174 @@
+<div class="min-h-screen bg-slate-950 text-slate-100">
+
+  <!-- Menú lateral -->
+  <aside class="fixed inset-y-0 left-0 z-30 flex w-64 flex-col
+                border-r border-slate-800 bg-slate-900"
+         [class.-translate-x-full]="!menuOpen"
+         [class.translate-x-0]="menuOpen">
+
+    <div class="flex h-20 items-center gap-3 border-b border-slate-800 px-6">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold">
+        V
+      </div>
+      <div>
+        <h1 class="text-lg font-bold">Vision</h1>
+        <p class="text-xs text-slate-400">Monitoring System</p>
+      </div>
+      <button class="ml-auto lg:hidden" (click)="menuOpen = false">✕</button>
+    </div>
+
+    <nav class="space-y-1 px-4 pt-7">
+      <p class="mb-3 px-3 text-xs uppercase tracking-widest text-slate-500">
+        Menú principal
+      </p>
+
+      <a routerLink="/" routerLinkActive="bg-blue-600/10 text-blue-400"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-slate-800">
+        <span>▦</span> Dashboard
+      </a>
+
+      <a routerLink="/stream" routerLinkActive="bg-blue-600/10 text-blue-400"
+         class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 hover:bg-slate-800">
+        <span>▷</span> Stream
+        <span class="ml-auto h-2 w-2 rounded-full bg-emerald-400"></span>
+      </a>
+    </nav>
+
+    <div class="mt-auto border-t border-slate-800 p-5">
+      <p class="text-sm font-medium">Vision System</p>
+      <p class="mt-1 text-xs text-slate-500">Panel de monitoreo</p>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="min-h-screen lg:pl-64">
+
+    <header class="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-slate-800 bg-slate-950/90 px-4 backdrop-blur-xl sm:px-8">
+      <div class="flex items-center gap-3">
+        <button class="rounded-lg border border-slate-800 p-2 lg:hidden"
+                (click)="menuOpen = !menuOpen">☰</button>
+        <div>
+          <h2 class="text-xl font-semibold">Dashboard</h2>
+          <p class="text-xs text-slate-500">Resumen general del sistema</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
+        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+        <span class="text-xs text-emerald-400">Sistema activo</span>
+      </div>
+    </header>
+
+    <div class="space-y-8 p-4 sm:p-8">
+
+      <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <p class="mb-2 text-sm font-medium text-blue-400">CENTRO DE CONTROL</p>
+          <h1 class="text-3xl font-bold">Resumen de actividad</h1>
+          <p class="mt-2 text-sm text-slate-400">
+            Métricas y rendimiento del sistema de detección.
+          </p>
+        </div>
+
+        <a routerLink="/stream"
+           class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-500">
+          ▷ Ver stream
+        </a>
+      </section>
+
+      <!-- Tarjetas -->
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @for (stat of stats; track stat.title) {
+          <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <p class="text-sm text-slate-400">{{ stat.title }}</p>
+            <p class="mt-5 text-3xl font-bold">{{ stat.value }}</p>
+            <p class="mt-2 text-xs text-slate-500">{{ stat.detail }}</p>
+          </article>
+        }
+      </section>
+
+      <!-- Gráficas -->
+      <section class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 xl:col-span-2">
+          <h3 class="font-semibold">Actividad de detecciones</h3>
+          <p class="mt-1 text-xs text-slate-500">Historial por minuto</p>
+
+          <div class="mt-6 h-72">
+            <canvas baseChart
+                    [type]="'line'"
+                    [data]="lineData"
+                    [options]="lineOptions">
+            </canvas>
+          </div>
+        </article>
+
+        <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
+          <h3 class="font-semibold">Tipos de detección</h3>
+          <p class="mt-1 text-xs text-slate-500">Distribución por categoría</p>
+
+          <div class="mx-auto mt-6 h-56 max-w-64">
+            <canvas baseChart
+                    [type]="'doughnut'"
+                    [data]="doughnutData"
+                    [options]="doughnutOptions">
+            </canvas>
+          </div>
+
+          <!-- Leyenda dinámica -->
+          <div class="mt-6 space-y-4">
+            @for (item of legend; track item.label) {
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2 text-sm text-slate-300">
+                  <span class="h-2.5 w-2.5 rounded-full" [style.background]="item.color"></span>
+                  {{ item.label }}
+                </span>
+                <span class="text-sm font-semibold">{{ item.pct }}%</span>
+              </div>
+            }
+          </div>
+        </article>
+
+        
+        <!-- Imágenes -->
+        <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6">
+          <h3 class="font-semibold">Imágenes de detecciones</h3>
+
+          <div class="mt-6">
+            <a
+              routerLink="/images"
+              class="inline-flex items-center justify-center rounded-xl
+            bg-blue-600 px-5 py-3 font-medium text-white
+              transition hover:bg-blue-500"
+            >
+              Ver imágenes
+            </a>
+          </div>
+        </article>
+      </section>
+
+      <!-- Acceso al stream -->
+      <section class="flex flex-col justify-between gap-5 rounded-2xl border border-slate-800 bg-gradient-to-r from-blue-950/60 to-slate-900 p-6 sm:flex-row sm:items-center sm:p-8">
+        <div>
+          <p class="mb-3 text-xs font-medium tracking-wider text-blue-300">
+            MONITOREO EN TIEMPO REAL
+          </p>
+          <h3 class="text-xl font-bold">Transmisión en vivo</h3>
+          <p class="mt-2 text-sm text-slate-400">
+            Accede al video y al sistema de detección.
+          </p>
+        </div>
+        <a routerLink="/stream"
+           class="rounded-xl border border-slate-700 bg-slate-900 px-5 py-3 text-center text-sm hover:bg-slate-800">
+          Abrir stream →
+        </a>
+      </section>
+
+      <footer class="border-t border-slate-800 pt-5 text-xs text-slate-600">
+        Vision System · Panel de monitoreo
+      </footer>
+
+    </div>
+  </main>
+</div>
