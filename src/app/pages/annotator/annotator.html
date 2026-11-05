@@ -1,0 +1,124 @@
+
+<div class="grid gap-4 lg:grid-cols-[1fr_280px]">
+
+  <!-- Imagen + overlay -->
+  <div class="flex justify-center overflow-auto rounded-2xl bg-black p-2">
+    <div class="relative inline-block select-none leading-none">
+      <img
+        [src]="imageSrc"
+        alt="Imagen para anotar"
+        class="block h-auto w-auto max-h-[70vh] max-w-full object-contain"
+        draggable="false"
+      />
+
+      <div
+        #overlay
+        class="absolute inset-0 touch-none"
+        [class.cursor-crosshair]="selectedLabelId !== null"
+        [class.cursor-not-allowed]="selectedLabelId === null"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp()"
+        (pointercancel)="onPointerUp()"
+      >
+        <!-- Cajas guardadas -->
+        <div
+          *ngFor="let b of boxes"
+          class="pointer-events-none absolute border-2 border-indigo-400 bg-indigo-400/10"
+          [style.left.%]="b.x * 100"
+          [style.top.%]="b.y * 100"
+          [style.width.%]="b.w * 100"
+          [style.height.%]="b.h * 100"
+        >
+          <span
+            class="absolute -top-6 left-0 rounded bg-indigo-500 px-1.5 py-0.5 text-xs text-white"
+          >
+            {{ labelName(b.labelId) }}
+          </span>
+        </div>
+
+        <!-- Caja mientras se dibuja -->
+        <div
+          *ngIf="drawing"
+          class="pointer-events-none absolute border-2 border-dashed border-emerald-400"
+          [style.left.%]="drawing.x * 100"
+          [style.top.%]="drawing.y * 100"
+          [style.width.%]="drawing.w * 100"
+          [style.height.%]="drawing.h * 100"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel lateral -->
+  <aside class="space-y-4">
+
+    <!-- Selección de clase -->
+    <div>
+      <p class="mb-2 text-sm text-slate-400">
+        Clase a dibujar
+      </p>
+
+      <select
+        [(ngModel)]="selectedLabelId"
+        class="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm"
+      >
+        <option [ngValue]="null" disabled>
+          Selecciona una clase...
+        </option>
+
+        <option *ngFor="let l of labels" [ngValue]="l.id">
+          {{ l.classIndex }} · {{ l.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Lista de cajas -->
+    <div>
+      <p class="mb-2 text-sm text-slate-400">
+        Cajas ({{ boxes.length }})
+      </p>
+
+      <ul class="space-y-1">
+        <li
+          *ngFor="let b of boxes; let i = index"
+          class="flex items-center justify-between rounded-lg bg-slate-800 px-3 py-1.5 text-sm"
+        >
+          {{ labelName(b.labelId) }}
+
+          <button
+            type="button"
+            (click)="removeBox(i)"
+            class="text-red-400 hover:text-red-300"
+          >
+            Quitar
+          </button>
+        </li>
+      </ul>
+
+      <p *ngIf="boxes.length === 0" class="text-sm text-slate-500">
+        No hay cajas dibujadas.
+      </p>
+    </div>
+
+    <!-- Acciones -->
+    <div class="flex gap-2">
+      <button
+        type="button"
+        (click)="clearAll()"
+        class="flex-1 rounded-xl bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700"
+      >
+        Limpiar
+      </button>
+
+      <button
+        type="button"
+        (click)="submit()"
+        class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-sm font-medium hover:bg-indigo-500"
+      >
+        {{ boxes.length ? 'Guardar' : 'Sin objetos' }}
+      </button>
+    </div>
+
+  </aside>
+</div>

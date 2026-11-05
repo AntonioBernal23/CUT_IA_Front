@@ -1,0 +1,37 @@
+<div class="text-slate-100">
+  <h1 class="mb-6 text-xl font-bold">Datasets ({{ datasets().length }})</h1>
+
+  @if (loading()) {
+    <p>Cargando...</p>
+  }
+
+  @if (error()) {
+    <p class="text-red-500">{{ error() }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  }
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    @for (d of datasets(); track d.id) {
+      <a
+        [routerLink]="['/datasets', d.id]"
+        class="block rounded-2xl border border-slate-800 bg-slate-900/70 p-5
+               transition hover:-translate-y-1 hover:border-indigo-500/50"
+      >
+        <h2 class="font-semibold">{{ d.name }}</h2>
+        @if (d.description) {
+          <p class="mt-1 text-sm text-slate-400">{{ d.description }}</p>
+        }
+        <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+          <span>{{ d.imageCount ?? 0 }} {{ d.imageCount === 1 ? 'imagen' : 'imágenes' }}</span>
+          @if (d.createdAt) {
+            <span>{{ d.createdAt | date:'dd/MM/yyyy' }}</span>
+          }
+        </div>
+      </a>
+    } @empty {
+      @if (!loading() && !error()) {
+        <p class="col-span-full text-sm text-slate-400">Aún no hay datasets.</p>
+      }
+    }
+  </div>
+</div>

@@ -1,5 +1,4 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-/src/environments/environment.ts
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files
 
 # Compiled output
 /dist
@@ -11,6 +10,16 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+
+# Angular
+/.angular/cache
+/.sass-cache/
+.coverage
+
+# Environment secrets
+.env
+.env.*
+!.env.example
 
 # IDEs and editors
 .idea/
@@ -30,8 +39,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
-.sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log
@@ -42,3 +49,12 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.old
+*.backup
+
+# Logs
+*.log

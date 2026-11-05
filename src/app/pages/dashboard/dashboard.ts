@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink} from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartData, ChartOptions, registerables } from 'chart.js';
 import { forkJoin, interval, startWith, switchMap, catchError, of } from 'rxjs';
@@ -11,7 +11,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, BaseChartDirective],
+  imports: [RouterLink, BaseChartDirective],
   templateUrl: './dashboard.html'
 })
 export class Dashboard implements OnInit {

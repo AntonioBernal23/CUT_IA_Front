@@ -1,0 +1,88 @@
+<!-- Botón ☰ flotante (solo móvil) -->
+@if (!menuOpen()) {
+  <button class="fixed left-4 top-4 z-20 rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-100 lg:hidden"
+          (click)="menuOpen.set(true)">☰</button>
+}
+
+<!-- Fondo oscuro en móvil al abrir el menú -->
+@if (menuOpen()) {
+  <div class="fixed inset-0 z-20 bg-black/60 lg:hidden" (click)="menuOpen.set(false)"></div>
+}
+
+<!-- Menú lateral -->
+<aside class="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-800 bg-slate-900
+              transition-transform duration-200 lg:translate-x-0"
+       [class.-translate-x-full]="!menuOpen()"
+       [class.translate-x-0]="menuOpen()">
+
+  <div class="flex h-20 items-center gap-3 border-b border-slate-800 px-6">
+    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold">
+      V
+    </div>
+    <div>
+      <h1 class="text-lg font-bold">Vision</h1>
+      <p class="text-xs text-slate-400">Monitoring System</p>
+    </div>
+    <button class="ml-auto lg:hidden" (click)="menuOpen.set(false)">✕</button>
+  </div>
+
+  <nav class="space-y-1 px-4 pt-7">
+    <p class="mb-3 px-3 text-xs uppercase tracking-widest text-slate-500">Menú principal</p>
+
+    <a routerLink="/" routerLinkActive="bg-blue-600/10 text-blue-400"
+       [routerLinkActiveOptions]="{ exact: true }"
+       (click)="menuOpen.set(false)"
+       class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-slate-800">
+      <span>▦</span> Dashboard
+    </a>
+
+    @if (auth.roles().includes('ADMIN')) {
+      <a routerLink="/stream" routerLinkActive="bg-blue-600/10 text-blue-400"
+       (click)="menuOpen.set(false)"
+       class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 hover:bg-slate-800">
+      <span>▷</span> Stream
+      <span class="ml-auto h-2 w-2 rounded-full bg-emerald-400"></span>
+    </a>
+    }
+  
+    @if (auth.roles().includes('ADMIN')) {
+      <a routerLink="/images" routerLinkActive="bg-blue-600/10 text-blue-400"
+       (click)="menuOpen.set(false)"
+       class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 hover:bg-slate-800">
+      <span>▣</span> Imágenes
+    </a>
+    }
+
+    @if (auth.roles().includes('ADMIN')) {
+      <!-- Dataset -->
+    <div class="space-y-1 pt-7">
+        <p class="mb-3 px-3 text-xs uppercase tracking-widest text-slate-500">Dataset</p>
+
+        <a routerLink="/unprocessed-images" routerLinkActive="bg-blue-600/10 text-blue-400"
+            (click)="menuOpen.set(false)"
+            class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 hover:bg-slate-800">
+            <span>▣</span> Imagenes sin procesar
+        </a>
+
+        <a routerLink="/datasets" routerLinkActive="bg-blue-600/10 text-blue-400"
+            (click)="menuOpen.set(false)"
+            class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 hover:bg-slate-800">
+            <span>⛁</span> Datasets
+        </a>
+    </div>
+    }
+  </nav>
+
+  <div class="mt-auto space-y-4 border-t border-slate-800 p-5">
+    <div>
+      <p class="text-sm font-medium">Vision System</p>
+      <p class="mt-1 text-xs text-slate-500">Panel de monitoreo</p>
+    </div>
+
+    <button (click)="logout()"
+            class="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20
+                   bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/20">
+      <span>⏻</span> Cerrar sesión
+    </button>
+  </div>
+</aside>

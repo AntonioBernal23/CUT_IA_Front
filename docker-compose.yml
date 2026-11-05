@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build: .
+    container_name: cut-ia-frontend
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    networks:
+      - cut_ia_network
+
+networks:
+  cut_ia_network:
+    external: true
