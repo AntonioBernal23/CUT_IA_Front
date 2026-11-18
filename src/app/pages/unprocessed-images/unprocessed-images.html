@@ -1,4 +1,4 @@
-<h1>Imágenes sin procesar ({{ items().length }})</h1>
+<h1>Imágenes sin procesar ({{ totalElements() }})</h1>
 
 <!-- Panel de dataset y clases -->
 <section class="mb-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-slate-100">
@@ -126,6 +126,54 @@
     }
   }
 </div>
+
+<!-- Paginador -->
+@if (totalPages() > 1) {
+  <nav class="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm" aria-label="Paginación">
+    <button
+      type="button"
+      (click)="goTo(page() - 1)"
+      [disabled]="page() === 0 || loading()"
+      class="rounded-xl bg-slate-800 px-3 py-2 text-slate-100 hover:bg-slate-700 disabled:opacity-50"
+    >
+      ← Anterior
+    </button>
+
+    @if (visiblePages()[0] > 0) {
+      <button type="button" (click)="goTo(0)" class="px-2 py-2">1</button>
+      @if (visiblePages()[0] > 1) { <span>…</span> }
+    }
+
+    @for (p of visiblePages(); track p) {
+      <button
+        type="button"
+        (click)="goTo(p)"
+        [disabled]="loading()"
+        [attr.aria-current]="p === page() ? 'page' : null"
+        class="rounded-xl px-3 py-2"
+        [class]="p === page()
+          ? 'bg-indigo-600 text-white'
+          : 'bg-slate-800 text-slate-100 hover:bg-slate-700'"
+      >
+        {{ p + 1 }}
+      </button>
+    }
+
+    @if (visiblePages()[visiblePages().length - 1] < totalPages() - 1) {
+      @if (visiblePages()[visiblePages().length - 1] < totalPages() - 2) { <span>…</span> }
+      <button type="button" (click)="goTo(totalPages() - 1)" class="px-2 py-2">{{ totalPages() }}</button>
+    }
+
+    <button
+      type="button"
+      (click)="goTo(page() + 1)"
+      [disabled]="page() >= totalPages() - 1 || loading()"
+      class="rounded-xl bg-slate-800 px-3 py-2 text-slate-100 hover:bg-slate-700 disabled:opacity-50"
+    >
+      Siguiente →
+    </button>
+  </nav>
+}
 
 <!-- Modal del anotador -->
 @if (selected(); as img) {

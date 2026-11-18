@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { UnprocessedImagesService, ImageSummary } from '../../core/unprocessedImages/unprocessedImages.service';
@@ -20,6 +20,20 @@ export class UnprocessedImages {
 
   // Imágenes pendientes
   readonly items = signal<ImageSummary[]>([]);
+
+  readonly pageSize = 12;
+  readonly page = signal(0);
+  readonly totalPages = signal(0);
+  readonly totalElements = signal(0);
+
+  readonly visiblePages = computed(() => {
+    const total = this.totalPages();
+    const current = this.page();
+    const start = Math.max(0, Math.min(current - 2, total - 5));
+    const end = Math.min(total, start + 5);
+    return Array.from({ length: end - start }, (_, i) => start + i);
+  });
+
   readonly loading = signal(true);
   readonly error = signal('');
   readonly deletingId = signal<number | null>(null);
@@ -48,16 +62,23 @@ export class UnprocessedImages {
   }
 
   // ---------- Imágenes pendientes ----------
-  load(): void {
+  load(page = this.page()): void {
     this.loading.set(true);
     this.error.set('');
 
     this.service
-      .getAllUnprocessed()
+      .getUnprocessed(page, this.pageSize)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: all => {
-          this.items.set(all);
+        next: res => {
+          if (res.content.length === 0 && page > 0 && res.totalPages > 0) {
+            this.load(res.totalPages - 1);
+            return;
+          }
+          this.items.set(res.content);
+          this.page.set(res.number);
+          this.totalPages.set(res.totalPages);
+          this.totalElements.set(res.totalElements);
           this.loading.set(false);
         },
         error: err => {
@@ -67,23 +88,25 @@ export class UnprocessedImages {
       });
   }
 
+  goTo(page: number): void {
+    if (this.loading() || page < 0 || page >= this.totalPages() || page === this.page()) return;
+    this.load(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   remove(img: ImageSummary): void {
     if (!confirm(`¿Eliminar "${img.fileName}"?`)) return;
 
     this.deletingId.set(img.id);
     this.service.delete(img.id).subscribe({
       next: () => {
-        this.items.update(list => list.filter(i => i.id !== img.id));
         this.deletingId.set(null);
+        this.load();
       },
       error: err => {
         this.deletingId.set(null);
-        // 404 = ya no existe, se puede quitar de la lista igual
-        if (err.status === 404) {
-          this.items.update(list => list.filter(i => i.id !== img.id));
-        } else {
-          this.error.set('No se pudo eliminar la imagen');
-        }
+        if (err.status === 404) this.load();
+        else this.error.set('No se pudo eliminar la imagen');
       },
     });
   }
@@ -215,9 +238,8 @@ export class UnprocessedImages {
     this.datasetService.saveAnnotations(datasetId, img.id, annotations).subscribe({
       next: () => {
         this.saving.set(false);
-        // Ya procesada: sale de la lista de pendientes
-        this.items.update(list => list.filter(i => i.id !== img.id));
         this.close();
+        this.load();
       },
       error: () => {
         this.saving.set(false);
